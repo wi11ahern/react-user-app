@@ -1,6 +1,10 @@
-import { SyntheticEvent, useState } from "react";
-import Warning from "../warning/warning";
+import { SyntheticEvent, useEffect, useRef, useState } from "react";
+
+import Button from "../common-ui/button";
+import Card from "../common-ui/card";
+import ErrorModal from "../common-ui/error-modal";
 import { User } from "./user-item";
+import styles from "./user-form.module.css";
 
 export type UserFormData = Omit<User, "id">;
 
@@ -12,6 +16,15 @@ const UserForm = (props: Props) => {
   const [username, setUsername] = useState<string>("");
   const [age, setAge] = useState<string>("");
   const [validationMessage, setValidationMessage] = useState<string>("");
+  const userNameInput = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    /**
+     * Sets the focus on whatever input element @userNameInput is assigned to as a 'ref'.
+     * In this case, we always want to re-focus on the username input after a submit event.
+     */
+    if (userNameInput.current) userNameInput.current.focus();
+  }, [username]);
 
   const usernameChangeHandler = (event: SyntheticEvent) => {
     const target = event.target as HTMLInputElement;
@@ -24,23 +37,23 @@ const UserForm = (props: Props) => {
     setAge(target.value);
   };
 
-  const onOkayHandler = (event: SyntheticEvent) => {
+  const exitErrorModalHandler = (event: SyntheticEvent) => {
     setValidationMessage("");
   };
 
   const submitHandler = (event: SyntheticEvent) => {
     event.preventDefault();
 
-    const ageNum: number = Number(age);
-    let validationMessage = "";
+    let validationMessages: string[] = [];
     if (username.length === 0) {
-      validationMessage += "You must enter a username!";
+      validationMessages.push("You must enter a username.");
     }
+    const ageNum: number = Number(age);
     if (ageNum <= 0) {
-      validationMessage += "\nAge cannot be less than 0!";
+      validationMessages.push("Age must be greater than 0.");
     }
-    if (validationMessage) {
-      setValidationMessage(validationMessage);
+    if (validationMessages.length > 0) {
+      setValidationMessage(validationMessages.join(" "));
       return;
     }
 
@@ -54,30 +67,28 @@ const UserForm = (props: Props) => {
   };
 
   return (
-    <div>
-      <Warning
-        onOkayHandler={onOkayHandler}
-        message={validationMessage}
-        isValid={validationMessage ? false : true}
-      />
+    <Card className={styles.input}>
+      {validationMessage && (
+        <ErrorModal
+          title="Validation Warning"
+          message={validationMessage}
+          onClickHandler={exitErrorModalHandler}
+        />
+      )}
       <form onSubmit={submitHandler}>
-        <div>
-          <label>Username</label>
-          <input
-            type="text"
-            onChange={usernameChangeHandler}
-            value={username}
-          />
-        </div>
-        <div>
-          <label>Age</label>
-          <input type="text" onChange={ageChangeHandler} value={age} />
-        </div>
-        <div>
-          <button type="submit">Add User</button>
-        </div>
+        <label htmlFor="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          onChange={usernameChangeHandler}
+          value={username}
+          ref={userNameInput}
+        />
+        <label htmlFor="age">Age</label>
+        <input id="age" type="number" onChange={ageChangeHandler} value={age} />
+        <Button type="submit">Add User</Button>
       </form>
-    </div>
+    </Card>
   );
 };
 

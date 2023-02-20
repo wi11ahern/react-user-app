@@ -2,7 +2,7 @@ import { ReactNode } from "react";
 import styles from "./card.module.css";
 
 interface Props {
-  className?: string;
+  className: string;
   children?: ReactNode;
 }
 

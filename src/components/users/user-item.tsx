@@ -1,4 +1,4 @@
-import Card from "../card/card";
+import Card from "../common-ui/card";
 import styles from "./user-item.module.css";
 
 export interface User {
@@ -13,9 +13,9 @@ interface Props {
 
 const UserItem = (props: Props) => {
   return (
-    <Card className={styles["user-item"]}>
-      <div>{`${props.user.username} (${props.user.age} years old)`}</div>
-    </Card>
+    <li className={styles["user-item"]}>
+      {`${props.user.username} (${props.user.age} years old)`}
+    </li>
   );
 };
 
