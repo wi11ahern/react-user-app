@@ -13,29 +13,18 @@ interface Props {
 }
 
 const UserForm = (props: Props) => {
-  const [username, setUsername] = useState<string>("");
-  const [age, setAge] = useState<string>("");
   const [validationMessage, setValidationMessage] = useState<string>("");
-  const userNameInput = useRef<HTMLInputElement>(null);
+  const usernameInputRef = useRef<HTMLInputElement>(null);
+  const ageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     /**
-     * Sets the focus on whatever input element @userNameInput is assigned to as a 'ref'.
-     * In this case, we always want to re-focus on the username input after a submit event.
+     * Sets the focus on the 'Username' input after a user is added.
+     * Note: This is safe in this app, but in more complex apps, it's better
+     * to limit useEffect by dependencies to avoid unexpected behavior.
      */
-    if (userNameInput.current) userNameInput.current.focus();
-  }, [username]);
-
-  const usernameChangeHandler = (event: SyntheticEvent) => {
-    const target = event.target as HTMLInputElement;
-    console.log(target.value);
-    setUsername(target.value);
-  };
-
-  const ageChangeHandler = (event: SyntheticEvent) => {
-    const target = event.target as HTMLInputElement;
-    setAge(target.value);
-  };
+    if (usernameInputRef.current) usernameInputRef.current.focus();
+  });
 
   const exitErrorModalHandler = (event: SyntheticEvent) => {
     setValidationMessage("");
@@ -44,12 +33,13 @@ const UserForm = (props: Props) => {
   const submitHandler = (event: SyntheticEvent) => {
     event.preventDefault();
 
+    const enteredUsername: string = usernameInputRef.current!.value;
+    const enteredAge: number = Number(ageInputRef.current!.value);
     let validationMessages: string[] = [];
-    if (username.length === 0) {
+    if (enteredUsername.length === 0) {
       validationMessages.push("You must enter a username.");
     }
-    const ageNum: number = Number(age);
-    if (ageNum <= 0) {
+    if (enteredAge <= 0) {
       validationMessages.push("Age must be greater than 0.");
     }
     if (validationMessages.length > 0) {
@@ -58,12 +48,13 @@ const UserForm = (props: Props) => {
     }
 
     const userFormData: UserFormData = {
-      username: username,
-      age: ageNum,
+      username: enteredUsername,
+      age: enteredAge,
     };
     props.onNewUserHandler(userFormData);
-    setUsername("");
-    setAge("");
+
+    usernameInputRef.current!.value = "";
+    ageInputRef.current!.value = "";
   };
 
   return (
@@ -78,20 +69,9 @@ const UserForm = (props: Props) => {
       <Card className={styles.input}>
         <form onSubmit={submitHandler}>
           <label htmlFor="username">Username</label>
-          <input
-            id="username"
-            type="text"
-            onChange={usernameChangeHandler}
-            value={username}
-            ref={userNameInput}
-          />
+          <input id="username" type="text" ref={usernameInputRef} />
           <label htmlFor="age">Age</label>
-          <input
-            id="age"
-            type="number"
-            onChange={ageChangeHandler}
-            value={age}
-          />
+          <input id="age" type="number" ref={ageInputRef} />
           <Button type="submit">Add User</Button>
         </form>
       </Card>
