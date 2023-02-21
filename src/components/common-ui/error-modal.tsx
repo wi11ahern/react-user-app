@@ -1,7 +1,7 @@
-import Button from "../common-ui/button";
-import Card from "../common-ui/card";
+import Backdrop from "./backdrop";
 import { MouseEventHandler } from "react";
-import styles from "./error-modal.module.css";
+import OverlayModal from "./overlay-modal";
+import ReactDOM from "react-dom";
 
 interface Props {
   title: string;
@@ -11,22 +11,16 @@ interface Props {
 
 const ErrorModal = (props: Props) => {
   return (
-    <div>
-      <div className={styles.backdrop} onClick={props.onClickHandler} />
-      <Card className={styles.modal}>
-        <header className={styles.header}>
-          <h2>{props.title}</h2>
-        </header>
-        <div className={styles.content}>
-          <p>{props.message}</p>
-        </div>
-        <footer className={styles.actions}>
-          <Button type="button" onClick={props.onClickHandler}>
-            Okay
-          </Button>
-        </footer>
-      </Card>
-    </div>
+    <>
+      {ReactDOM.createPortal(
+        <Backdrop onClickHandler={props.onClickHandler} />,
+        document.getElementById("backdrop-root")!
+      )}
+      {ReactDOM.createPortal(
+        <OverlayModal {...props} />,
+        document.getElementById("overlay-root")!
+      )}
+    </>
   );
 };
 

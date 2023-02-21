@@ -13,13 +13,13 @@ const UserList = (props: Props) => {
   });
 
   return (
-    <div>
+    <>
       {userItems.length > 0 && (
         <Card className={styles.users}>
           <ul>{userItems}</ul>;
         </Card>
       )}
-    </div>
+    </>
   );
 };
 
